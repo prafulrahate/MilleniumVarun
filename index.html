@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unicode → Millennium Varun Converter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Unicode → Millennium Varun Converter</h1>
+    <div class="upload-section">
+      <label class="upload-label" for="fontFile">Upload TTF Font</label>
+      <input type="file" id="fontFile" accept=".ttf" />
+    </div>
+    <div class="glyph-preview" id="glyphPreview"></div>
+    <div class="input-section">
+      <textarea id="unicodeInput" placeholder="Paste Hindi Unicode text here..."></textarea>
+    </div>
+    <button class="convert-btn" id="convertBtn">Convert</button>
+    <div class="output-section">
+      <div class="output-box" id="outputBox"></div>
+    </div>
+  </div>
+  <script type="module" src="script.js"></script>
+</body>
+</html>

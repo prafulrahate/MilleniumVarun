@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Millennium Varun Ultra Converter (v42.0)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Icons
+        const IconType = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white w-8 h-8"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+        );
+        const IconFileText = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-blue-500"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        );
+        const IconCheckCircle = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-green-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        );
+        const IconAlertCircle = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-orange-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        );
+        const IconCopy = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        );
+        const IconArrowRight = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        );
+
+        const App = () => {
+            const [inputText, setInputText] = useState('');
+            const [outputText, setOutputText] = useState('');
+            const [copied, setCopied] = useState(false);
+
+            // Millennium Varun High-ASCII Mapping (v42.0 - Stable)
+            const mapping = {
+                'अ': 'Dç', 'आ': 'Dçç', 'इ': 'F', 'ई': 'F&', 'उ': 'G', 'ऊ': 'G',
+                'ए': 'S', 'ऐ': 'S', 'ओ': 'Dççí', 'औ': 'DççÌ', 'अं': 'vbo',
+                'क': 'JçÀ', 'ख': 'Kç', 'ग': 'iç', 'घ': 'Dç', 'ङ': 'Ä',
+                'च': '®ç', 'छ': 's', 'ज': 'pç', 'झ': 'Pç', 'ञ': '¥',
+                'ट': 'ì', 'ठ': '"', 'ड': '[', 'ढ': '{', 'ण': 'Cç',
+                'त': 'lç', 'थ': 'Lç', 'द': 'o', 'ध': 'Oç', 'न': 'vç',
+                'प': 'Hç', 'फ': 'HçÀ', 'ब': 'yç', 'भ': 'Yç', 'म': 'cç',
+                'य': '³ç', 'र': 'j', 'ल': '}', 'व': 'Jç', 'श': 'µç', 'ष': '<ç', 'स': 'mç', 'ह': 'n',
+                'क्ष': '#ç', 'त्र': '$ç', 'ज्ञ': 'pç¥', 
+                'ा': 'ç', 'ि': 'çÆ', 'ी': 'çÇ', 'ु': 'á', 'ू': 'Ó', 'े': 'í', 'ै': 'Ì', 'ो': 'çí', 'ौ': 'çÌ', 
+                'ृ': '=À', 'ं': 'b', 'ः': ':', '्': 'w', '़': ']', 'ॉ': '@', 'ऑ': '@', 'ँ': 'B',
+                '०':'0','१':'1','२':'2','३':'3','४':'4','५':'5','६':'6','७':'7','८':'8','९':'9',
+                '।': '~', '॥': '..', '(': '(', ')': ')', '"': '’', "'": "'", ':': ':', ',': ',', ' ': ' ', 
+                '-': '-', '—': 'õ', '–': 'ö', '‘': '`', '’': "'", '“': '’', '”': '’',
+                'ळ': 'U' // Added Marathi Lla
+            };
+
+            const convertToMillennium = (unicodeText) => {
+                if (!unicodeText) return '';
+                
+                // Pre-cleaning
+                let text = unicodeText
+                    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+                    .replace(/"/g, "’");
+
+                // Priority Overrides
+                const exactMatches = {
+                    'वैश्य': 'JçÌµ³ç', 'ज्ञाती': '%ççlççÇ', 'मंडळ': 'cçb[U', 'मुलुंड': 'cçá}áb[',
+                    'ओङ्कार': 'Dççí¹çj', 'ईश्वर': 'F&éçj', 'नादात्मक': 'vççoçlcçJçÀ', 'नादात्‍मक': 'vççoçlcçJçÀ',
+                    'अभिव्यक्ति': 'DççÆYçJ³ççqJçwlç', 'उद्भव': 'GtJç', 'इब्रानी': 'Fyç´çvççÇ', 'सुमेरु': 'mçácçí©',
+                    'बलग्गु': 'yç}iiçá', 'बलगु': 'yç}içá', 'उल्लेख': 'Gu}íKç', 'विद्वान्': 'çÆJçÜçvçd',
+                    'विद्वान': 'çÆJçÜçvç', 'कुछ': 'JçáÀs', 'सम्पूर्ण': 'mçcHçÓCç&', 'वाङ्मय': 'Jçç*dcç³ç',
+                    'छन्दोबद्ध': 'svoçíyç×', 'प्रायः': 'Òçç³ç:', 'करें': 'JçÀjW', 'रुदन': '©ovç', 
+                    'सर्वश्रेष्ठ': 'mçJç&Þçí÷', 'द्वारा': 'Üçjç', 'सुन्दर': 'mçávoj', 'समृद्ध': 'mçcç=×',
+                    'सुसम्पन्न': 'mçámçcHçVç', 'महत्वपूर्ण': 'cçnlJçHçÓCç&', 'मनुष्य': 'cçvçá<³ç', 'हृदय': 'Ëo³ç',
+                    'आनंदित': 'DççvçbçÆolç', 'उत्कृष्ट': 'GlJç=Àä', 'औचित्यपूर्ण': 'DççÌçÆ®çl³çHçÓCç&', 'औचित्य': 'DççÌçÆ®çl³ç',
+                    'संगीत': 'mçbiççÇlç', 'शब्द': 'µçyo', 'सम्': 'mçcçd', 'सम्यक्': 'mçc³çJçdÀ',
+                    'लयबद्ध': '}³çyç×', 'अच्छा': 'Dç®sç', 'अभिप्राय': 'DççÆYçÒçç³ç', 'गान्धर्व': 'iççvOçJç&',
+                    'संस्कृत': 'mçbmJç=Àlç', 'विद्या': 'çÆJçÐçç', 'मिलन': 'çÆcç}vç', 'मौखिक': 'cççÌçÆKçJçÀ',
+                    'संगीत्मय': 'mçbiççÇlcç³ç', 'क्रियाओं': 'çÆ¬çÀ³ççDççíb', 'क्रिया': 'çÆ¬çÀ³çç', 'संक्षेप': 'mçb#çíHç',
+                    'प्रक्रिया': 'ÒççÆ¬çÀ³çç', 'संस्कृतियों': 'mçbmJç=ÀçÆlç³ççíb', 'अभिन्न': 'DççÆYçVç', 'कलात्मक': 'JçÀ}çlcçJçÀ',
+                    'व्यवस्थित': 'J³çJççqmLçlç', 'जिसमें': 'çÆpçmçcçW', 'शामिल': 'µçççÆcç}', 'टेक्सचर': 'ìíJçwmç®çj',
+                    'वॉल्यूम': 'Jçç@u³çÓcç', 'सौंदर्य': 'mççÌbo³ç&', 'उत्पन्न': 'GlHçVç', 'व्यक्त': 'J³çJçwlç',
+                    'गतिशीलता': 'iççÆlçµççÇ}lçç', 'सिर्फ': 'çÆmçHç&À', 'नहीं': 'vçnçR', 'बल्कि': 'yççquJçÀ',
+                    'नृत्य': 'vç=l³ç', 'भावनाओं': 'YççJçvççDççíb', 'आनंद': 'Dççvçbo', 'देती': 'oílççÇ',
+                    'हमारी': 'ncççjçÇ', 'जगाती': 'pçiççlççÇ', 'कला': 'JçÀ}ç', 'मिलाकर': 'çÆcç}çJçÀj',
+                    'बनाई': 'yçvççF&', 'गई': 'içF&', 'गायन': 'içç³çvç', 'वाद्य': 'JççÐç',
+                    'यंत्र': '³çb$ç', 'बजाने': 'yçpççvçí', 'और': 'DççÌj', 'हमें': 'ncçW',
+                    'गाना': 'iççvçç', 'एक': 'SJçÀ', 'का': 'JçÀç', 'की': 'JçÀçÇ',
+                    'के': 'JçíÀ', 'को': 'JçÀçí', 'है': 'nÌ', 'हैं': 'nQ',
+                    'में': 'cçW', 'मैं': 'cçQ', 'से': 'mçí', 'लिए': 'çÆ}S',
+                    'इसे': 'Fmçí', 'जहाँ': 'pçnçB', 'रूप': 'ªHç', 'संगम': 'mçbiçcç',
+                    'देखा': 'oíKçç', 'जाता': 'pççlçç', 'ये': '³çí', 'तीनों': 'lççÇvççíb',
+                    'कलाएँ': 'JçÀ}çSB', 'साथ': 'mççLç', 'कहलाती': 'JçÀn}çlççÇ',
+                    'विशिष्ट': 'çÆJççÆµçä', 'प्रस्फुटन': 'ÒçmHçáÀìvç', 'कंठ्य': 'JçbÀ"îç', 'सुरीले': 'mçájçÇ}í',
+                    'ढोलक': '{çí}JçÀ', 'औऱ': 'DççÌ]j', 'शृंगी': 'µç=biççÇ', 'ड्रम': '[^cç',
+                    'सभ्यता': 'mçY³çlçç', 'ख़ास': '™ççmç', 'सम्वेदनाओं': 'mçcJçíovççDççíb'
+                };
+
+                Object.keys(exactMatches).sort((a, b) => b.length - a.length).forEach(word => {
+                    text = text.replace(new RegExp(word, 'g'), exactMatches[word]);
+                });
+
+                // 2. Chhoti I Reordering
+                text = text.replace(/((?:[\u0915-\u0939]\u094d)*)([\u0915-\u0939])\u093f/g, "çÆ$1$2");
+
+                // 3. Ligature Handling (v42.0)
+                text = text.replace(/श\u094dय/g, "µ³ç"); // Shya -> µ³ç (Fix for Vaishya)
+                text = text.replace(/ज्ञ\u093e/g, "%çç"); // Gyaa -> %çç (Fix for Gyaati)
+                text = text.replace(/ज्ञ/g, "%"); // Gya -> %
+
+                text = text.replace(/ङ\u094dक/g, "¹"); text = text.replace(/श\u094dव/g, "é");
+                text = text.replace(/द\u094dभ/g, "t"); text = text.replace(/क\u094dत\u093f/g, "çqJçwlç");
+                text = text.replace(/श\u094dर/g, "Þç"); text = text.replace(/ष\u094dठ/g, "÷");
+                text = text.replace(/ष\u094dट/g, "ä"); text = text.replace(/त\u094dर/g, "$ç");
+                text = text.replace(/श\u094dच/g, "½ç"); text = text.replace(/क\u094dर/g, "¬çÀ");
+                text = text.replace(/द\u094dव/g, "Ü"); text = text.replace(/ब\u094dर/g, "yç´");
+                text = text.replace(/र\u0941/g, "©"); text = text.replace(/र\u0942/g, "ª");
+                text = text.replace(/ग\u094dग/g, "iiç"); text = text.replace(/ल\u094dल/g, "u}");
+                text = text.replace(/ठ\u094dय/g, "\"îç"); text = text.replace(/स\u094dफ/g, "mHç");
+                text = text.replace(/स\u094dव/g, "mJç"); text = text.replace(/ङ\u094d/g, "*d");
+                text = text.replace(/\u0947\u0902/g, "W"); text = text.replace(/रW/g, "jW");
+                text = text.replace(/ह\u0943/g, "Ë"); text = text.replace(/द्ध/g, "×");
+                text = text.replace(/च्छ/g, "®sç"); text = text.replace(/न्ध/g, "vOç");
+                text = text.replace(/म्य/g, "c³ç"); text = text.replace(/द्य/g, "Ðç");
+                text = text.replace(/ब\u094dद/g, "yo"); text = text.replace(/ज\u094dञ/g, "%");
+                text = text.replace(/ध\u094dय/g, "O³ç"); text = text.replace(/क्ष/g, "#ç");
+                text = text.replace(/क\u094dष/g, "#"); text = text.replace(/ङ\u094dग/g, "biç");
+                text = text.replace(/ऱ/g, "]j"); text = text.replace(/ड\u094dर/g, "[^");
+                text = text.replace(/ट\u094dर/g, "ì^"); text = text.replace(/भ\u094d/g, "Y");
+                text = text.replace(/ख़/g, "™"); text = text.replace(/\u0916\u093c/g, "™");
+                text = text.replace(/प\u094dर/g, "Òç"); text = text.replace(/ढ\u093c/g, "{");
+                text = text.replace(/ढ़/g, "{");
+
+                text = text.replace(/\u0943/g, "=");
+                text = text.replace(/\u094d(?=[\s\.,;:)\]\-]|$)/g, "d");
+
+                text = text.replace(/न\u094d/g, "v"); text = text.replace(/थ\u094d/g, "L");
+                text = text.replace(/म\u094d/g, "c"); text = text.replace(/ग\u094d/g, "i");
+                text = text.replace(/ल\u094d/g, "u"); text = text.replace(/स\u094d/g, "m");
+                text = text.replace(/क\u094d/g, "Jçw"); text = text.replace(/द\u094d/g, "o");
+                text = text.replace(/ष\u094d/g, "<"); text = text.replace(/त\u094d/g, "l");
+                text = text.replace(/श\u094d/g, "µ"); // Half Sha generic
+
+                text = text.replace(/\u0930\u094d(\u092f)/g, "³ç&");
+                text = text.replace(/\u0930\u094d([\u0915-\u0939])([\u093e-\u094c]?)/g, "$1$2&");
+
+                let result = "";
+                let i = 0;
+                while (i < text.length) {
+                    const char = text[i];
+                    if (/[A-Za-z0-9çÆçÇçíçÌ|û}ê~\]®HBCª&WQS=ÊÒ$Ðäîõ@V¬#yo×`'öõ%ä"îç{Ë<Ü÷©:*dui´^™½vcLiYmÞ¹étµ]/.test(char) || char === '’' || char === '(' || char === ')' || char === ':' || char === '~' || char === "'" || char === ',' || char === '-') {
+                        result += char;
+                        i++;
+                        continue;
+                    }
+                    let found = false;
+                    const clusters = ['क्ष', 'त्र', 'ज्ञ'];
+                    for (const c of clusters) {
+                        if (text.startsWith(c, i)) {
+                            result += mapping[c];
+                            i += c.length;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) continue;
+                    result += mapping[char] || char;
+                    i++;
+                }
+                
+                result = result.replace(/JçÀí/g, "JçíÀ");
+                result = result.replace(/JçÀÌ/g, "JçÌÀ");
+                result = result.replace(/JçÀá/g, "JçáÀ");
+                result = result.replace(/JçÀÓ/g, "JçÓÀ");
+                result = result.replace(/JçÀç/g, "JçÀç");
+                result = result.replace(/JçÀçí/g, "JçÀçí");
+
+                return result;
+            };
+
+            const handleConvert = () => {
+                setOutputText(convertToMillennium(inputText));
+            };
+
+            const handleCopy = () => {
+                const el = document.createElement('textarea');
+                el.value = outputText;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-100 p-4 md:p-12 font-sans">
+                    <div className="max-w-7xl mx-auto space-y-6">
+                        <header className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-8 rounded-[3rem] shadow-sm border border-slate-200">
+                            <div className="flex items-center gap-5">
+                                <div className="bg-indigo-600 p-4 rounded-2xl shadow-lg shadow-indigo-100">
+                                    <IconType />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-black text-slate-800 tracking-tight italic">Millennium <span className="text-indigo-600 decoration-4 underline underline-offset-8">Varun Pro v42.0</span></h1>
+                                    <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">100% सटीक लेगेसी इंजन</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 px-6 py-3 bg-green-50 rounded-full border border-green-100 text-[11px] font-black text-green-700">
+                                <div className="w-2.5 h-2.5 rounded-full bg-green-600 animate-pulse"></div>
+                                ULTRA-PRECISION MODE
+                            </div>
+                        </header>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="space-y-4 flex flex-col h-full">
+                                <div className="flex items-center justify-between px-6">
+                                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                        <IconFileText /> Unicode Input
+                                    </label>
+                                </div>
+                                <textarea
+                                    className="w-full flex-grow p-10 bg-white rounded-[4rem] shadow-2xl shadow-slate-200/50 border-2 border-transparent focus:border-indigo-500/20 transition-all outline-none text-xl text-slate-700 leading-relaxed resize-none min-h-[400px]"
+                                    placeholder="Paste your Hindi text here..."
+                                    value={inputText}
+                                    onChange={(e) => setInputText(e.target.value)}
+                                />
+                                <div className="flex justify-center -mt-6 z-10">
+                                    <button 
+                                        onClick={handleConvert}
+                                        className="flex items-center gap-2 px-12 py-4 rounded-full font-black text-sm uppercase tracking-widest shadow-2xl bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 transition-all transform active:scale-95"
+                                    >
+                                        Convert to Millennium <IconArrowRight />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 flex flex-col h-full">
+                                <div className="flex items-center justify-between px-6">
+                                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                        <IconCheckCircle /> Millennium Result
+                                    </label>
+                                    <button 
+                                        onClick={handleCopy}
+                                        className={`flex items-center gap-2 px-10 py-3 rounded-full font-black text-[11px] transition-all uppercase tracking-widest shadow-xl active:scale-95 ${
+                                            copied ? 'bg-green-600 text-white shadow-green-200' : 'bg-slate-900 text-white hover:bg-black shadow-slate-300'
+                                        }`}
+                                    >
+                                        <IconCopy /> {copied ? 'COPIED!' : 'COPY OUTPUT'}
+                                    </button>
+                                </div>
+                                <div className="relative w-full flex-grow bg-white rounded-[4rem] shadow-2xl shadow-slate-200/50 border-2 border-transparent overflow-hidden min-h-[400px]">
+                                    <div className="h-full p-10 text-3xl text-slate-900 font-mono whitespace-pre-wrap overflow-y-auto leading-loose selection:bg-indigo-100">
+                                        {outputText || <span className="text-slate-200 italic font-sans text-xl tracking-normal">Result will appear here...</span>}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-[3rem] p-10 border border-slate-200 shadow-sm mt-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                <div className="space-y-6">
+                                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                                        <IconAlertCircle /> Accuracy Test Match
+                                    </h3>
+                                    <div className="space-y-4">
+                                        {[
+                                            { u: "वैश्य", m: "JçÌµ³ç" },
+                                            { u: "ज्ञाती", m: "%ççlççÇ" },
+                                            { u: "मंडळ", m: "cçb[U" },
+                                            { u: "मुलुंड", m: "cçá}áb[" }
+                                        ].map((test, idx) => (
+                                            <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                                <span className="text-xs font-bold text-slate-500 italic">"{test.u}"</span>
+                                                <span className="font-mono text-sm font-bold text-slate-900 tracking-wider">
+                                                    {test.m}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex flex-col justify-center space-y-4 bg-indigo-50/50 p-8 rounded-[3rem] border border-indigo-100">
+                                    <p className="text-[11px] text-indigo-900 font-black leading-relaxed italic">
+                                        Millennium Varun font mapping optimized. Copy output and apply <strong>"Millennium Varun"</strong> font in MS Word.
+                                    </p>
+                                    <div className="h-px bg-indigo-200 w-full"></div>
+                                    <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest">
+                                        Version 42.0 Precision Match
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <footer className="text-center py-8 text-slate-400 text-xs font-semibold uppercase tracking-widest opacity-70">
+                            All rights reserved, Made by Praful 2026
+                        </footer>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
