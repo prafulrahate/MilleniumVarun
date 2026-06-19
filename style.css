@@ -69,6 +69,30 @@ button.convert-btn:active {transform:scale(0.97);}
   line-height:1.4;
   white-space:pre-wrap;
 }
+button.convert-btn {
+  display:block;
+  width:100%;
+  padding:0.8rem;
+  font-size:1rem;
+  font-weight:600;
+  color:#fff;
+  background:#34d399;
+  border:none;
+  border-radius:0.5rem;
+  cursor:pointer;
+  transition:transform 0.1s;
+}
+button.convert-btn:active {transform:scale(0.97);}
+.output-box {
+  min-height:120px;
+  padding:0.8rem;
+  background:rgba(255,255,255,0.6);
+  backdrop-filter:blur(6px);
+  border-radius:0.8rem;
+  font-size:1.1rem;
+  line-height:1.4;
+  white-space:pre-wrap;
+}
 .glyph-preview {
   display:grid;
   grid-template-columns:repeat(16,1fr);
