@@ -178,3 +178,8 @@ convertBtn.addEventListener('click', () => {
     outputBox.style.fontFamily = loadedFont ? 'CustomVarun' : 'inherit';
 });
 
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+const content = document.getElementById('outputBox').innerText;
+navigator.clipboard.writeText(content);
+});
