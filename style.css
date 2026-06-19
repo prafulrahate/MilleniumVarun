@@ -69,7 +69,7 @@ button.convert-btn:active {transform:scale(0.97);}
   line-height:1.4;
   white-space:pre-wrap;
 }
-button.convert-btn {
+button.copy-btn {
   display:block;
   width:100%;
   padding:0.8rem;
@@ -82,7 +82,7 @@ button.convert-btn {
   cursor:pointer;
   transition:transform 0.1s;
 }
-button.convert-btn:active {transform:scale(0.97);}
+button.copy-btn:active {transform:scale(0.97);}
 .output-box {
   min-height:120px;
   padding:0.8rem;
