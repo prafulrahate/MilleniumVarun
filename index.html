@@ -5,14 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Unicode → Millennium Varun Converter</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preload" href="FontConverter/MilleniumVarun Normal.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+   <style>
+    @font-face {
+      font-family: 'MilleniumVarun';
+      src: url('MilleniumVarun Normal.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
 </head>
 <body>
   <div class="container">
     <h1>Unicode → Millennium Varun Converter</h1>
     <div class="upload-section">
-      <label class="upload-label" for="fontFile">Upload TTF Font</label>
-      <input type="file" id="fontFile" accept=".ttf" />
-    </div>
+    <label class="upload-label" style="font-family: 'MilleniumVarun'">
+      Font Loaded: MilleniumVarun Normal
+    </label>
+  </div>
     <div class="glyph-preview" id="glyphPreview"></div>
     <div class="input-section">
       <textarea id="unicodeInput" placeholder="Paste Hindi Unicode text here..."></textarea>
