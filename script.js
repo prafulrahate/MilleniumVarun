@@ -1,21 +1,22 @@
-// script.js – handles font loading, glyph preview and conversion
-// Mapping and conversion logic (extracted from VarunConverterV42)
+// script.js – Millennium Varun Font Converter (Comprehensive Fix)
+// Unicode Devanagari → Varun Legacy Encoding
+
 const mapping = {
     'अ': 'Dç', 'आ': 'Dçç', 'इ': 'F', 'ई': 'F&', 'उ': 'G', 'ऊ': 'G',
-    'ए': 'S', 'ऐ': 'S', 'ओ': 'Dççí', 'औ': 'DççÌ', 'अं': 'vbo',
-    'क': 'JçÀ', 'ख': 'Kç', 'ग': 'iç', 'घ': 'Dç', 'ङ': 'Ä',
+    'ए': 'S', 'ऐ': 'Sí', 'ओ': 'Dççí', 'औ': 'DççÌ', 'अं': 'vbo',
+    'क': 'JçÀ', 'ख': 'Kç', 'ग': 'iç', 'घ': 'Iç', 'ङ': 'Ä',
     'च': '®ç', 'छ': 's', 'ज': 'pç', 'झ': 'Pç', 'ञ': '¥',
     'ट': 'ì', 'ठ': '"', 'ड': '[', 'ढ': '{', 'ण': 'Cç',
     'त': 'lç', 'थ': 'Lç', 'द': 'o', 'ध': 'Oç', 'न': 'vç',
     'प': 'Hç', 'फ': 'HçÀ', 'ब': 'yç', 'भ': 'Yç', 'म': 'cç',
     'य': '³ç', 'र': 'j', 'ल': '}', 'व': 'Jç', 'श': 'µç', 'ष': '<ç', 'स': 'mç', 'ह': 'n',
-    'क्ष': '#ç', 'त्र': '$ç', 'ज्ञ': 'pç¥',
+    'क्ष': '#ç', 'त्र': '$ç', 'ज्ञ': '%ç',
     'ा': 'ç', 'ि': 'çÆ', 'ी': 'çÇ', 'ु': 'á', 'ू': 'Ó', 'े': 'í', 'ै': 'Ì', 'ो': 'çí', 'ौ': 'çÌ',
     'ृ': '=À', 'ं': 'b', 'ः': ':', '्': 'w', '़': ']', 'ॉ': '@', 'ऑ': 'Dçç@', 'ँ': 'B',
     '०':'0','१':'1','२':'2','३':'3','४':'4','५':'5','६':'6','७':'7','८':'8','९':'9',
-    '।': '~', '॥': '..', '(': '(', ')': ')', '"': '’', "'": "'", ':': ':', ',': ',', ' ': ' ',
-    '-': '-', '—': 'õ', '–': 'ö', '‘': '`', '’': "'", '“': '’', '”': '’',
-    'ळ': 'U'
+    '।': '~', '॥': '..', '(': '(', ')': ')', '"': '\u2018', "'": "'", ':': ':', ',': ',', ' ': ' ',
+    '-': '-', '—': 'õ', '–': 'ö', '\u2018': '`', '\u2019': "'", '\u201C': '\u2018', '\u201D': '\u2018',
+    'ळ': 'U', '.': '.', '?': '?', '!': '!', ';': ';'
 };
 
 const exactMatches = {
@@ -26,13 +27,13 @@ const exactMatches = {
     'विद्वान': 'çÆJçÜçvç', 'कुछ': 'JçáÀs', 'सम्पूर्ण': 'mçcHçÓCç&', 'वाङ्मय': 'Jçç*dcç³ç',
     'छन्दोबद्ध': 'svoçíyç×', 'प्रायः': 'Òçç³ç:', 'करें': 'JçÀjW', 'रुदन': '©ovç',
     'सर्वश्रेष्ठ': 'mçJç&Þçí÷', 'द्वारा': 'Üçjç', 'सुन्दर': 'mçávoj', 'समृद्ध': 'mçcç=×',
-    'सुसम्पन्न': 'mçámçcHçVç', 'महत्वपूर्ण': 'cçnlJçHçÓCç&', 'मनुष्य': 'cçvçá<c³ç', 'हृदय': 'Ëo³ç',
+    'सुसम्पन्न': 'mçámçcHçVç', 'महत्वपूर्ण': 'cçnlJçHçÓCç&', 'मनुष्य': 'cçvçá<³ç', 'हृदय': 'Ëo³ç',
     'आनंदित': 'DççvçbçÆolç', 'उत्कृष्ट': 'GlJç=Àä', 'औचित्यपूर्ण': 'DççÌçÆ®çl³çHçÓCç&', 'औचित्य': 'DççÌçÆ®çl³ç',
     'संगीत': 'mçbiççÇlç', 'शब्द': 'µçyo', 'सम्': 'mçcçd', 'सम्यक्': 'mçc³çJçdÀ',
-    'लयबद्ध': '}³çyç×', 'अच्छा': 'Dç®sç', 'अभिप्राय': 'DççÆYçÒçç३ç', 'गान्धर्व': 'iççvOçJç&',
+    'लयबद्ध': '}³çyç×', 'अच्छा': 'Dç®sç', 'अभिप्राय': 'DççÆYçÒçç³ç', 'गान्धर्व': 'iççvOçJç&',
     'संस्कृत': 'mçbmJç=Àlç', 'विद्या': 'çÆJçÐçç', 'मिलन': 'çÆcç}vç', 'मौखिक': 'cççÌçÆKçJçÀ',
-    'संगीत्मय': 'mçbiççÇlcç³ç', 'क्रियाओं': 'çÆ¬çÀ३ççDççíb', 'क्रिया': 'çÆ¬çÀ३çç', 'संक्षेप': 'mçb#çíHç',
-    'प्रक्रिया': 'ÒççÆ¬çÀ३çç', 'संस्कृतियों': 'mçbmJç=ÀçÆlç³ççíb', 'अभिन्न': 'DççÆYçVç', 'कलात्मक': 'JçÀ}çlcçJçÀ',
+    'संगीत्मय': 'mçbiççÇlcç³ç', 'क्रियाओं': 'çÆ¬çÀ³ççDççíb', 'क्रिया': 'çÆ¬çÀ³çç', 'संक्षेप': 'mçb#çíHç',
+    'प्रक्रिया': 'ÒççÆ¬çÀ³çç', 'संस्कृतियों': 'mçbmJç=ÀçÆlç³ççíb', 'अभिन्न': 'DççÆYçVç', 'कलात्मक': 'JçÀ}çlcçJçÀ',
     'व्यवस्थित': 'J³çJççqmLçlç', 'जिसमें': 'çÆpçmçcçW', 'शामिल': 'µçççÆcç}', 'टेक्सचर': 'ìíJçwmç®çj',
     'वॉल्यूम': 'Jçç@u³çÓcç', 'सौंदर्य': 'mççÌbo³ç&', 'उत्पन्न': 'GlHçVç', 'व्यक्त': 'J³çJçwlç',
     'गतिशीलता': 'iççÆlçµççÇ}lçç', 'सिर्फ': 'çÆmçHç&À', 'नहीं': 'vçnçR', 'बल्कि': 'yççquJçÀ',
@@ -48,97 +49,195 @@ const exactMatches = {
     'कलाएँ': 'JçÀ}çSB', 'साथ': 'mççLç', 'कहलाती': 'JçÀn}çlççÇ',
     'विशिष्ट': 'çÆJççÆµçä', 'प्रस्फुटन': 'ÒçmHçáÀìvç', 'कंठ्य': 'JçbÀ"îç', 'सुरीले': 'mçájçÇ}í',
     'ढोलक': '{çí}JçÀ', 'औऱ': 'DççÌ]j', 'शृंगी': 'µç=biççÇ', 'ड्रम': '[^cç',
-    'सभ्यता': 'mçY³çlçç', 'ख़ास': '™ççmç', 'सम्वेदनाओं': 'mçcJçíovççDççíb'
+    'सभ्यता': 'mçY³çlçç', 'ख़ास': '™ççmç', 'सम्वेदनाओं': 'mçcJçíovççDççíb',
+    'उद्घाटन': 'GodIççìvç'
 };
 
 function convertToMillennium(unicodeText) {
     if (!unicodeText) return '';
-    let text = unicodeText.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/"/g, '’');
-    // Apply exact matches first (longest first)
+    let text = unicodeText.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/"/g, '\u2018');
+
+    // === PHASE 1: Exact matches (longest first) ===
     Object.keys(exactMatches).sort((a,b)=>b.length-a.length).forEach(word=>{
         text = text.replace(new RegExp(word, 'g'), exactMatches[word]);
     });
-    // Reorder small i (Chhoti I)
+
+    // === PHASE 2: Chhoti I (ि) Reordering ===
     text = text.replace(/((?:[\u0915-\u0939]\u094d)*)([\u0915-\u0939])\u093f/g, "çÆ$1$2");
-    // Ligature handling
-    text = text.replace(/श\u094dय/g, "µ³ç");
-    text = text.replace(/ज्ञ\u093e/g, "%çç");
-    text = text.replace(/ज्ञ/g, "%");
-    text = text.replace(/ग\u094dर/g, "ûç");
-    text = text.replace(/ङ\u094dक/g, "¹").replace(/श\u094dव/g, "é");
-    text = text.replace(/द\u094dभ/g, "t").replace(/क\u094dत\u093f/g, "çqJçwlç");
-    text = text.replace(/श\u094dर/g, "Þç").replace(/ष\u094dठ/g, "÷");
-    text = text.replace(/ष\u094dट/g, "ä").replace(/त\u094dर/g, "$ç");
-    text = text.replace(/श\u094dच/g, "½ç").replace(/क\u094dर/g, "¬çÀ");
-    text = text.replace(/द\u094dव/g, "Ü").replace(/ब\u094dर/g, "yç´");
-    text = text.replace(/र\u0941/g, "©").replace(/र\u0942/g, "ª");
-    text = text.replace(/ग\u094dग/g, "iiç").replace(/ल\u094dल/g, "u}");
-    text = text.replace(/ठ\u094dय/g, "\\\"îç").replace(/स\u094dफ/g, "mHç");
-    text = text.replace(/स\u094dव/g, "mJç").replace(/ङ\u094d/g, "*d");
-    text = text.replace(/\u0947\u0902/g, "W").replace(/रW/g, "jW");
-    text = text.replace(/ह\u0943/g, "Ë").replace(/द्ध/g, "×");
-    text = text.replace(/च्छ/g, "®sç").replace(/न्ध/g, "vOç");
-    text = text.replace(/म्य/g, "c³ç").replace(/द्य/g, "Ðç");
-    text = text.replace(/ब\u094dद/g, "yo").replace(/ज\u094dञ/g, "%");
-    text = text.replace(/ध\u094dय/g, "O³ç").replace(/क्ष/g, "#ç");
-    text = text.replace(/क\u094dष/g, "#").replace(/ङ\u094dग/g, "biç");
-    text = text.replace(/ऱ/g, "]j").replace(/ड\u094dर/g, "[^");
-    text = text.replace(/ट\u094dर/g, "ì^").replace(/भ\u094d/g, "Y");
-    text = text.replace(/ख़/g, "™").replace(/\u0916\u093c/g, "™");
-    text = text.replace(/प\u094dर/g, "Òç").replace(/ढ\u093c/g, "{");
+
+    // === PHASE 3: Reph (र्) handling — BEFORE ligatures ===
+    // Captures full consonant cluster + optional vowel, puts & (reph) after
+    text = text.replace(/\u0930\u094d(([\u0915-\u0939]\u094d)*[\u0915-\u0939])([\u093e-\u094c]?)/g,
+        function(match, cluster, _inner, vowel) {
+            return cluster + (vowel || '') + '&';
+        });
+
+    // === PHASE 4: ें (e + anusvara) → W ===
+    text = text.replace(/\u0947\u0902/g, "W");
+
+    // === PHASE 5a: Multi-consonant ligatures (3+ consonants) ===
+    text = text.replace(/\u0937\u094d\u091f\u094d\u0930/g, "ä^");   // ष्ट्र → ä^
+    text = text.replace(/\u0924\u094d\u0930\u094d\u092f/g, "$³ç");  // त्र्य → $³ç
+    text = text.replace(/\u0915\u094d\u0937\u094d\u092e/g, "#c");    // क्ष्म → #c
+
+    // === PHASE 5b: Half-form of ligatures (before full forms) ===
+    text = text.replace(/\u0915\u094d\u0937\u094d/g, "#");   // क्ष् (half-ksha) → #
+    text = text.replace(/\u0924\u094d\u0930\u094d/g, "$");   // त्र् (half-tra) → $
+    text = text.replace(/\u0924\u094d\u0924\u094d/g, "Ê");   // त्त् (half-tta) → Ê
+    text = text.replace(/\u091c\u094d\u091e\u094d/g, "%");   // ज्ञ् (half-gya) → %
+
+    // === PHASE 5c: Two-consonant ligatures ===
+    text = text.replace(/\u0936\u094d\u092f/g, "µ³ç");   // श्य → µ³ç
+    text = text.replace(/\u091c\u094d\u091e/g, "%ç");     // ज्ञ → %ç (full form)
+    text = text.replace(/\u0917\u094d\u0930/g, "ûç");     // ग्र → ûç
+    text = text.replace(/\u0919\u094d\u0915/g, "¹");       // ङ्क → ¹
+    text = text.replace(/\u0936\u094d\u0935/g, "éç");     // श्व → éç (FIXED: was é)
+    text = text.replace(/\u0926\u094d\u092d/g, "t");       // द्भ → t
+    text = text.replace(/\u0915\u094d\u0924\u093f/g, "çqJçwlç"); // क्ति → çqJçwlç
+    text = text.replace(/\u0936\u094d\u0930/g, "Þç");     // श्र → Þç
+    text = text.replace(/\u0937\u094d\u0920/g, "÷");       // ष्ठ → ÷
+    text = text.replace(/\u0937\u094d\u091f/g, "ä");       // ष्ट → ä
+    text = text.replace(/\u0924\u094d\u0924/g, "Êç");     // त्त → Êç (NEW)
+    text = text.replace(/\u0924\u094d\u0930/g, "$ç");      // त्र → $ç
+    text = text.replace(/\u0936\u094d\u091a/g, "½ç");     // श्च → ½ç
+    text = text.replace(/\u0915\u094d\u0930/g, "¬çÀ");    // क्र → ¬çÀ
+    text = text.replace(/\u0926\u094d\u0935/g, "Ü");       // द्व → Ü
+    text = text.replace(/\u0926\u094d\u0930/g, "ê");       // द्र → ê (NEW)
+    text = text.replace(/\u092c\u094d\u0930/g, "yç´");    // ब्र → yç´
+    text = text.replace(/\u0930\u0941/g, "©");              // रु → ©
+    text = text.replace(/\u0930\u0942/g, "ª");              // रू → ª
+    text = text.replace(/\u0917\u094d\u0917/g, "iiç");     // ग्ग → iiç
+    text = text.replace(/\u0932\u094d\u0932/g, "u}");       // ल्ल → u}
+    text = text.replace(/\u0920\u094d\u092f/g, '"îç');      // ठ्य → "îç
+    text = text.replace(/\u0921\u094d\u092f/g, "[îç");     // ड्य → [îç (NEW)
+    text = text.replace(/\u0938\u094d\u0935/g, "mJç");     // स्व → mJç
+    text = text.replace(/\u0919\u094d/g, "*d");             // ङ् → *d
+    text = text.replace(/\u0939\u094d\u092f/g, "¿ç");     // ह्य → ¿ç (NEW)
+    text = text.replace(/\u0939\u094d\u092e/g, "ïç");     // ह्म → ïç (NEW)
+    text = text.replace(/\u0926\u094d\u0927/g, "×");       // द्ध → ×
+    text = text.replace(/\u091a\u094d\u091b/g, "®s");      // च्छ → ®s (FIXED: was ®sç)
+    text = text.replace(/\u0928\u094d\u0927/g, "vOç");     // न्ध → vOç
+    text = text.replace(/\u0928\u094d\u0928/g, "Vç");      // न्न → Vç (NEW)
+    text = text.replace(/\u092e\u094d\u092f/g, "c³ç");     // म्य → c³ç
+    text = text.replace(/\u0926\u094d\u092f/g, "Ðç");      // द्य → Ðç
+    text = text.replace(/\u092c\u094d\u0926/g, "yo");       // ब्द → yo
+    text = text.replace(/\u0927\u094d\u092f/g, "O³ç");     // ध्य → O³ç
+    text = text.replace(/\u0915\u094d\u0937/g, "#ç");      // क्ष → #ç (full form)
+    text = text.replace(/\u0919\u094d\u0917/g, "biç");     // ङ्ग → biç
+    text = text.replace(/\u0921\u094d\u0930/g, "[^");       // ड्र → [^
+    text = text.replace(/\u091f\u094d\u0930/g, "ì^");      // ट्र → ì^
+    text = text.replace(/\u092d\u094d/g, "Y");              // भ् → Y (half-भ)
+    text = text.replace(/\u0916\u093c/g, "™");              // ख़ → ™
+    text = text.replace(/ख़/g, "™");
+    text = text.replace(/\u092a\u094d\u0930/g, "Òç");      // प्र → Òç
+    text = text.replace(/\u0922\u093c/g, "{");              // ढ़ → {
     text = text.replace(/ढ़/g, "{");
+
+    // === PHASE 5d: Special vowel ligatures ===
+    text = text.replace(/\u0926\u0943/g, "¢");   // दृ → ¢ (NEW)
+    text = text.replace(/\u0939\u0943/g, "Ë");   // हृ → Ë
+
+    // === PHASE 6: Generic sub-ra (्र after ligatures) ===
+    text = text.replace(/\u094d\u0930/g, "^");
+
+    // === PHASE 7: ृ → = (remaining, after दृ/हृ handled) ===
     text = text.replace(/\u0943/g, "=");
+
+    // === PHASE 8: End-of-word halant → d ===
     text = text.replace(/\u094d(?=[\s\.,;:)\]\-]|$)/g, "d");
-    text = text.replace(/न\u094d/g, "v").replace(/थ\u094d/g, "L");
-    text = text.replace(/म\u094d/g, "c").replace(/ग\u094d/g, "i");
-    text = text.replace(/ल\u094d/g, "u").replace(/स\u094d/g, "m");
-    text = text.replace(/क\u094d/g, "Jçw").replace(/द\u094d/g, "o");
-    text = text.replace(/ष\u094d/g, "<").replace(/त\u094d/g, "l");
-    text = text.replace(/श\u094d/g, "µ");
-    text = text.replace(/ध\u094d/g, "O").replace(/ण\u094d/g, "C");
-    text = text.replace(/च\u094d/g, "®").replace(/ज\u094d/g, "p");
-    text = text.replace(/ट\u094d/g, "ì").replace(/ख\u094d/g, "K");
-    text = text.replace(/प\u094d/g, "H").replace(/ब\u094d/g, "y");
-    text = text.replace(/ह\u094d/g, "n").replace(/य\u094d/g, "³");
-    text = text.replace(/व\u094d/g, "J").replace(/ड\u094d/g, "[");
-    text = text.replace(/ढ\u094d/g, "{").replace(/झ\u094d/g, "P");
-    text = text.replace(/ठ\u094d/g, '"').replace(/घ\u094d/g, "D");
-    text = text.replace(/फ\u094d/g, "HçÀw").replace(/ळ\u094d/g, "U");
-    text = text.replace(/ञ\u094d/g, "¥").replace(/ङ\u094d/g, "Ä");
-    text = text.replace(/\u0930\u094d(\u092f)/g, "³ç&");
-    text = text.replace(/\u0930\u094d([\u0915-\u0939])([\u093e-\u094c]?)/g, "$1$2&");
-    // Build output
+
+    // === PHASE 9: Half-ऱ (before full ऱ) ===
+    text = text.replace(/\u0931\u094d/g, "N");   // ऱ् → N (NEW)
+    text = text.replace(/\u0931/g, "]j");         // ऱ → ]j
+
+    // === PHASE 10: Half-consonant forms ===
+    text = text.replace(/\u0928\u094d/g, "v");    // न् → v
+    text = text.replace(/\u0925\u094d/g, "L");    // थ् → L
+    text = text.replace(/\u092e\u094d/g, "c");    // म् → c
+    text = text.replace(/\u0917\u094d/g, "i");    // ग् → i
+    text = text.replace(/\u0932\u094d/g, "u");    // ल् → u
+    text = text.replace(/\u0938\u094d/g, "m");    // स् → m
+    text = text.replace(/\u0915\u094d/g, "Jçw");  // क् → Jçw
+    text = text.replace(/\u0926\u094d/g, "od");   // द् → od (visible halant, same glyph as full द)
+    text = text.replace(/\u0937\u094d/g, "<");    // ष् → <
+    text = text.replace(/\u0924\u094d/g, "l");    // त् → l
+    text = text.replace(/\u0936\u094d/g, "µ");    // श् → µ
+    text = text.replace(/\u0927\u094d/g, "O");    // ध् → O
+    text = text.replace(/\u0923\u094d/g, "C");    // ण् → C
+    text = text.replace(/\u091a\u094d/g, "®");    // च् → ®
+    text = text.replace(/\u091c\u094d/g, "p");    // ज् → p
+    text = text.replace(/\u091f\u094d/g, "ì");    // ट् → ì
+    text = text.replace(/\u0916\u094d/g, "K");    // ख् → K
+    text = text.replace(/\u092a\u094d/g, "H");    // प् → H
+    text = text.replace(/\u092c\u094d/g, "y");    // ब् → y
+    text = text.replace(/\u0939\u094d/g, "¼");    // ह् → ¼
+    text = text.replace(/\u092f\u094d/g, "³");    // य् → ³
+    text = text.replace(/\u0935\u094d/g, "J");    // व् → J
+    text = text.replace(/\u0921\u094d/g, "[");    // ड् → [
+    text = text.replace(/\u0922\u094d/g, "{");    // ढ् → {
+    text = text.replace(/\u091d\u094d/g, "P");    // झ् → P
+    text = text.replace(/\u0920\u094d/g, '"');     // ठ् → "
+    text = text.replace(/\u0918\u094d/g, "I");    // घ् → I (FIXED: was D)
+    text = text.replace(/\u092b\u094d/g, "HçÀw"); // फ् → HçÀw
+    text = text.replace(/\u0933\u094d/g, "È");    // ळ् → È (FIXED: was U)
+    text = text.replace(/\u091e\u094d/g, "¥");    // ञ् → ¥
+
+    // === PHASE 11: Character-by-character mapping ===
     let result = '';
     let i = 0;
     while (i < text.length) {
         const ch = text[i];
-        if (/[A-Za-z0-9çÆçÇçíçÌ|û}ê~\]®HBCª&WQS=ÊÒ$Ðäîõ@V¬#yo×`'öõ%ä"îç{Ë<cÜ÷©:*dui´^™½vcLiYmÞ¹étµ]/.test(ch) || ch === '’' || ch === '(' || ch === ')' || ch === ':' || ch === '~' || ch === "'" || ch === ',' || ch === '-') {
+        // Pass through already-converted characters
+        if (/[A-Za-z0-9çÆÇíÌû}ê~\]®BCª&WQS=ÊÒ\$ÐäîõV¬#yo×`'öõ%"ç{Ë<cÜ÷©:*dui´\^™½vLYmÞ¹étµRNÓá¿ï¢È¼]/.test(ch)
+            || ch === '\u2018' || ch === '(' || ch === ')' || ch === ':'
+            || ch === '~' || ch === "'" || ch === ',' || ch === '-'
+            || ch === '.' || ch === ';' || ch === '?' || ch === '!'
+            || ch === ' ' || ch === '\n' || ch === '\r' || ch === '\t'
+            || ch === '|' || ch === 'H' || ch === 'P' || ch === 'I'
+            || ch === 'K' || ch === 'J' || ch === 'O' || ch === 'b'
+            || ch === 'p' || ch === 'l' || ch === 'i' || ch === 'v'
+            || ch === 'u' || ch === 'm' || ch === 'c' || ch === 'n'
+            || ch === 'j' || ch === 'U' || ch === 'F' || ch === 'G'
+            || ch === '[' || ch === '^' || ch === 'w' || ch === 'µ') {
             result += ch;
             i++;
             continue;
         }
-        // Handle clusters
+        // Handle remaining multi-char clusters
         const clusters = ['क्ष', 'त्र', 'ज्ञ'];
         let matched = false;
-        for (const c of clusters) {
-            if (text.startsWith(c, i)) {
-                result += mapping[c];
-                i += c.length;
+        for (const cl of clusters) {
+            if (text.startsWith(cl, i)) {
+                result += mapping[cl];
+                i += cl.length;
                 matched = true;
                 break;
             }
         }
         if (matched) continue;
+        // Single character mapping
         result += mapping[ch] || ch;
         i++;
     }
-    // Post‑processing fixes (same as original)
+
+    // === PHASE 12: Post-processing ===
+    // क (JçÀ) vowel reordering
     result = result.replace(/JçÀí/g, "JçíÀ");
     result = result.replace(/JçÀÌ/g, "JçÌÀ");
     result = result.replace(/JçÀá/g, "JçáÀ");
     result = result.replace(/JçÀÓ/g, "JçÓÀ");
-    result = result.replace(/JçÀç/g, "JçÀç");
-    result = result.replace(/JçÀçí/g, "JçÀçí");
+    result = result.replace(/JçÀ=/g, "Jç=À");
+    // फ (HçÀ) vowel reordering
+    result = result.replace(/HçÀí/g, "HçíÀ");
+    result = result.replace(/HçÀá/g, "HçáÀ");
+    result = result.replace(/HçÀÓ/g, "HçÓÀ");
+    result = result.replace(/HçÀ=/g, "Hç=À");
+    // क्र (¬çÀ) vowel reordering
+    result = result.replace(/¬çÀí/g, "¬çíÀ");
+    result = result.replace(/¬çÀá/g, "¬çáÀ");
+    // Reph + anusvara combination
+    result = result.replace(/&b/g, "¥");
+
     return result;
 }
 
@@ -176,10 +275,4 @@ convertBtn.addEventListener('click', () => {
     outputBox.textContent = converted;
     // Apply custom font to output
     outputBox.style.fontFamily = loadedFont ? 'CustomVarun' : 'inherit';
-});
-
-
-document.getElementById('copyBtn').addEventListener('click', () => {
-const content = document.getElementById('outputBox').innerText;
-navigator.clipboard.writeText(content);
 });
