@@ -276,3 +276,42 @@ convertBtn.addEventListener('click', () => {
     // Apply custom font to output
     outputBox.style.fontFamily = loadedFont ? 'CustomVarun' : 'inherit';
 });
+
+// Copy Output functionality
+const copyBtn = document.getElementById('copyBtn');
+
+copyBtn.addEventListener('click', async () => {
+    const textToCopy = outputBox.textContent;
+    if (!textToCopy) return;
+
+    try {
+        await navigator.clipboard.writeText(textToCopy);
+        showCopiedFeedback();
+    } catch (err) {
+        // Fallback for older browsers / non-HTTPS contexts
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showCopiedFeedback();
+        } catch (fallbackErr) {
+            console.error('Copy failed:', fallbackErr);
+        }
+        document.body.removeChild(textarea);
+    }
+});
+
+function showCopiedFeedback() {
+    const originalText = copyBtn.textContent;
+    copyBtn.textContent = 'Copied!';
+    copyBtn.disabled = true;
+    setTimeout(() => {
+        copyBtn.textContent = originalText;
+        copyBtn.disabled = false;
+    }, 1500);
+}
