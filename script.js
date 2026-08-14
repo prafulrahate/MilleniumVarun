@@ -310,12 +310,21 @@ const charCount = document.getElementById('charCount');
 
 if (pasteBtn) {
     pasteBtn.addEventListener('click', async () => {
+        if (!navigator.clipboard || !navigator.clipboard.readText) {
+            alert('Your browser restricts clipboard access on this connection. Please use Ctrl+V (or long-press) to paste directly into the box.');
+            if (unicodeInput) unicodeInput.focus();
+            return;
+        }
         try {
             const text = await navigator.clipboard.readText();
-            unicodeInput.value = text;
-            updateCharCount();
+            if (unicodeInput) {
+                unicodeInput.value = text;
+                updateCharCount();
+            }
         } catch (err) {
             console.error('Failed to read clipboard contents: ', err);
+            alert('Clipboard access was denied by your browser. Please use Ctrl+V or long-press to paste.');
+            if (unicodeInput) unicodeInput.focus();
         }
     });
 }
