@@ -35,6 +35,7 @@ const exactMatches = {
     'संगीत्मय': 'mçbiççÇlcç³ç', 'क्रियाओं': 'çÆ¬çÀ³ççDççíb', 'क्रिया': 'çÆ¬çÀ³çç', 'संक्षेप': 'mçb#çíHç',
     'प्रक्रिया': 'ÒççÆ¬çÀ³çç', 'संस्कृतियों': 'mçbmJç=ÀçÆlç³ççíb', 'अभिन्न': 'DççÆYçVç', 'कलात्मक': 'JçÀ}çlcçJçÀ',
     'व्यवस्थित': 'J³çJççqmLçlç', 'जिसमें': 'çÆpçmçcçW', 'शामिल': 'µçççÆcç}', 'टेक्सचर': 'ìíJçwmç®çj',
+    'व्यक्तिमत्त्वाचा': 'J³ççqJçwlçcçÊJçç®çç', 'व्यक्तिमत्त्व': 'J³ççqJçwlçcçÊJç', 'व्यक्ति': 'J³ççqJçwlç',
     'वॉल्यूम': 'Jçç@u³çÓcç', 'सौंदर्य': 'mççÌbo³ç&', 'उत्पन्न': 'GlHçVç', 'व्यक्त': 'J³çJçwlç',
     'गतिशीलता': 'iççÆlçµççÇ}lçç', 'सिर्फ': 'çÆmçHç&À', 'नहीं': 'vçnçR', 'बल्कि': 'yççquJçÀ',
     'नृत्य': 'vç=l³ç', 'भावनाओं': 'YççJçvççDççíb', 'आनंद': 'Dççvçbo', 'देती': 'oílççÇ',
@@ -62,6 +63,9 @@ function convertToMillennium(unicodeText) {
         text = text.replace(new RegExp(word, 'g'), exactMatches[word]);
     });
 
+    // === PHASE 2.0: Specific ligatures with Chhoti I (before reordering) ===
+    text = text.replace(/\u0915\u094d\u0924\u093f/g, "çqJçwlç"); // क्ति → çqJçwlç
+
     // === PHASE 2: Chhoti I (ि) Reordering ===
     text = text.replace(/((?:[\u0915-\u0939]\u094d)*)([\u0915-\u0939])\u093f/g, "çÆ$1$2");
 
@@ -72,13 +76,17 @@ function convertToMillennium(unicodeText) {
             return cluster + (vowel || '') + '&';
         });
 
+    // === PHASE 3.5: Chhoti I + Reph ===
+    // If Chhoti I (çÆ) and Reph (&) are on the same consonant, it becomes ç|
+    text = text.replace(/çÆ((?:[\u0915-\u0939]\u094d)*[\u0915-\u0939])\&/g, "ç|$1");
+
     // === PHASE 4: ें (e + anusvara) → W ===
     text = text.replace(/\u0947\u0902/g, "W");
 
     // === PHASE 5a: Multi-consonant ligatures (3+ consonants) ===
     text = text.replace(/\u0937\u094d\u091f\u094d\u0930/g, "ä^");   // ष्ट्र → ä^
     text = text.replace(/\u0924\u094d\u0930\u094d\u092f/g, "$³ç");  // त्र्य → $³ç
-    text = text.replace(/\u0915\u094d\u0937\u094d\u092e/g, "#c");    // क्ष्म → #c
+    text = text.replace(/\u0915\u094d\u0937\u094d\u092e/g, "#cç");    // क्ष्म → #cç
 
     // === PHASE 5b: Half-form of ligatures (before full forms) ===
     text = text.replace(/\u0915\u094d\u0937\u094d/g, "#");   // क्ष् (half-ksha) → #
@@ -93,7 +101,7 @@ function convertToMillennium(unicodeText) {
     text = text.replace(/\u0919\u094d\u0915/g, "¹");       // ङ्क → ¹
     text = text.replace(/\u0936\u094d\u0935/g, "éç");     // श्व → éç (FIXED: was é)
     text = text.replace(/\u0926\u094d\u092d/g, "t");       // द्भ → t
-    text = text.replace(/\u0915\u094d\u0924\u093f/g, "çqJçwlç"); // क्ति → çqJçwlç
+    // क्ति rule moved to Phase 2.0
     text = text.replace(/\u0936\u094d\u0930/g, "Þç");     // श्र → Þç
     text = text.replace(/\u0937\u094d\u0920/g, "÷");       // ष्ठ → ÷
     text = text.replace(/\u0937\u094d\u091f/g, "ä");       // ष्ट → ä
@@ -126,12 +134,14 @@ function convertToMillennium(unicodeText) {
     text = text.replace(/\u0919\u094d\u0917/g, "biç");     // ङ्ग → biç
     text = text.replace(/\u0921\u094d\u0930/g, "[^");       // ड्र → [^
     text = text.replace(/\u091f\u094d\u0930/g, "ì^");      // ट्र → ì^
+    text = text.replace(/\u092d\u094d\u0930/g, "Yç´");      // भ्र → Yç´
     text = text.replace(/\u092d\u094d/g, "Y");              // भ् → Y (half-भ)
     text = text.replace(/\u0916\u093c/g, "™");              // ख़ → ™
     text = text.replace(/ख़/g, "™");
     text = text.replace(/\u092a\u094d\u0930/g, "Òç");      // प्र → Òç
     text = text.replace(/\u0922\u093c/g, "{");              // ढ़ → {
     text = text.replace(/ढ़/g, "{");
+    text = text.replace(/\u092e\u094d\u0930/g, "cç´");      // म्र → cç´
 
     // === PHASE 5d: Special vowel ligatures ===
     text = text.replace(/\u0926\u0943/g, "¢");   // दृ → ¢ (NEW)
@@ -242,40 +252,17 @@ function convertToMillennium(unicodeText) {
 }
 
 // Font handling & UI
-const fontInput = document.getElementById('fontFile');
-const glyphPreview = document.getElementById('glyphPreview');
 const convertBtn = document.getElementById('convertBtn');
 const unicodeInput = document.getElementById('unicodeInput');
 const outputBox = document.getElementById('outputBox');
-let loadedFont = null;
 
-fontInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const arrayBuffer = await file.arrayBuffer();
-    const font = new FontFace('CustomVarun', arrayBuffer);
-    await font.load();
-    document.fonts.add(font);
-    loadedFont = font;
-    // Render glyph preview – first 128 Unicode code points of Devanagari (0x0900‑0x097F)
-    glyphPreview.innerHTML = '';
-    for (let cp = 0x0900; cp <= 0x097F; cp++) {
-        const char = String.fromCharCode(cp);
-        const span = document.createElement('span');
-        span.className = 'glyph';
-        span.style.fontFamily = 'CustomVarun';
-        span.textContent = char;
-        glyphPreview.appendChild(span);
-    }
-});
-
-convertBtn.addEventListener('click', () => {
-    const input = unicodeInput.value;
-    const converted = convertToMillennium(input);
-    outputBox.textContent = converted;
-    // Apply custom font to output
-    outputBox.style.fontFamily = loadedFont ? 'CustomVarun' : 'inherit';
-});
+if (convertBtn) {
+    convertBtn.addEventListener('click', () => {
+        const input = unicodeInput.value;
+        const converted = convertToMillennium(input);
+        outputBox.textContent = converted;
+    });
+}
 
 // Copy Output functionality
 const copyBtn = document.getElementById('copyBtn');
@@ -314,4 +301,39 @@ function showCopiedFeedback() {
         copyBtn.textContent = originalText;
         copyBtn.disabled = false;
     }, 1500);
+}
+
+// New UI interactions
+const pasteBtn = document.getElementById('pasteBtn');
+const clearBtn = document.getElementById('clearBtn');
+const charCount = document.getElementById('charCount');
+
+if (pasteBtn) {
+    pasteBtn.addEventListener('click', async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            unicodeInput.value = text;
+            updateCharCount();
+        } catch (err) {
+            console.error('Failed to read clipboard contents: ', err);
+        }
+    });
+}
+
+if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+        unicodeInput.value = '';
+        outputBox.textContent = '';
+        updateCharCount();
+    });
+}
+
+if (unicodeInput && charCount) {
+    unicodeInput.addEventListener('input', updateCharCount);
+}
+
+function updateCharCount() {
+    if (unicodeInput && charCount) {
+        charCount.textContent = `${unicodeInput.value.length} characters`;
+    }
 }
