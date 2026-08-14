@@ -112,6 +112,7 @@ function convertToMillennium(unicodeText) {
     text = text.replace(/\u0926\u094d\u0935/g, "Ü");       // द्व → Ü
     text = text.replace(/\u0926\u094d\u0930/g, "ê");       // द्र → ê (NEW)
     text = text.replace(/\u092c\u094d\u0930/g, "yç´");    // ब्र → yç´
+    text = text.replace(/\u0935\u094d\u0930/g, "¬ç");     // व्र → ¬ç (FIX for व्रुज्जी)
     text = text.replace(/\u0930\u0941/g, "©");              // रु → ©
     text = text.replace(/\u0930\u0942/g, "ª");              // रू → ª
     text = text.replace(/\u0917\u094d\u0917/g, "iiç");     // ग्ग → iiç
