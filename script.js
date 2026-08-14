@@ -139,6 +139,10 @@ function convertToMillennium(unicodeText) {
     text = text.replace(/\u092d\u094d/g, "Y");              // भ् → Y (half-भ)
     text = text.replace(/\u0916\u093c/g, "™");              // ख़ → ™
     text = text.replace(/ख़/g, "™");
+    text = text.replace(/\u0921\u093c/g, "›");              // ड़ → ›
+    text = text.replace(/\u095c/g, "›");                    // ड़ → ›
+    text = text.replace(/ड़/g, "›");
+    text = text.replace(/ड़/g, "›");
     text = text.replace(/\u092a\u094d\u0930/g, "Òç");      // प्र → Òç
     text = text.replace(/\u0922\u093c/g, "{");              // ढ़ → {
     text = text.replace(/ढ़/g, "{");
