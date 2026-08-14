@@ -299,18 +299,48 @@ footer {
 }
 
 @media (max-width: 768px) {
+  header {
+    padding: 2.5rem 1rem 1rem;
+  }
+  .logo-main {
+    font-size: 1.8rem;
+  }
+  .hero h1 {
+    font-size: 2rem;
+    padding: 0 1rem;
+  }
+  .hero p {
+    font-size: 0.95rem;
+    padding: 0 1rem;
+  }
+  .cursive-text {
+    font-size: 1.2rem;
+  }
+  .converter-card {
+    margin: 0 1rem 2rem;
+    width: auto;
+  }
   .card-body {
     flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
   }
   .center-col {
     width: 100%;
-    margin: 1rem 0;
+    margin: 0.5rem 0;
   }
   .convert-icon-btn svg {
     transform: rotate(90deg);
   }
   .convert-icon-btn:hover svg {
     transform: rotate(270deg);
+  }
+  .info-section {
+    padding: 1.5rem 1rem;
+    margin: 1rem 1rem 3rem;
+  }
+  .info-section h2 {
+    font-size: 1.4rem;
   }
   footer {
     flex-direction: column;
